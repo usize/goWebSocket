@@ -51,7 +51,7 @@ func (cxt *WebSocketContext) growBuffer(size int) error {
 }
 
 // Build a response to the WebSocket clients initial security challenge
-func (cxt *WebSocketContext) generateHandShake() ([]byte, error) {
+func (cxt *WebSocketContext) GenerateHandshake() ([]byte, error) {
 	// Split out the security key
 	rawKeyExpr := regexp.MustCompile("Sec-WebSocket-Key: (.*)==").FindSubmatch(cxt.buffer)
 	if len(rawKeyExpr) <= 1 {
@@ -71,8 +71,8 @@ func (cxt *WebSocketContext) generateHandShake() ([]byte, error) {
 	return []byte(response), nil
 }
 
-func (cxt *WebSocketContext) SendHandShake() error {
-	handshake, err := cxt.generateHandShake()
+func (cxt *WebSocketContext) SendHandshake() error {
+	handshake, err := cxt.GenerateHandshake()
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func handleConnection(conn net.Conn) {
 		}
 		cxt.offset += size
 		if cxt.isConnected == false && bytes.Contains(cxt.buffer, []byte("Upgrade: websocket")) {
-			err := cxt.SendHandShake()
+			err := cxt.SendHandshake()
 			if err != nil {
 				fmt.Errorf("Handshake Error: %s", err)
 				break
