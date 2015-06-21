@@ -33,10 +33,10 @@ type WebSocketContext struct {
 	isConnected bool   // set to true after a successful handshake
 }
 
-func (cxt *WebSocketContext) clearBuffer(bufSize int) {
+func (cxt *WebSocketContext) clearBuffer(bufferSize int) {
 	// The garbage collector will throw out our old buffer sometime
 	// after this finishes.
-	cxt.buffer = make([]byte, bufSize)
+	cxt.buffer = make([]byte, bufferSize)
 	cxt.offset = 0
 }
 
