@@ -12,6 +12,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"frame"
 	"net"
 	"os"
 	"regexp"
@@ -84,7 +85,9 @@ func (cxt *WebSocketContext) SendHandshake() error {
 }
 
 func handleConnection(conn net.Conn) {
+	defer conn.Close()
 	cxt := WebSocketContext{conn, make([]byte, bufferSize), 0, false}
+	wsf := frame.WebSocketFrame{}
 	for {
 		if cxt.offset >= len(cxt.buffer) {
 			// Double our buffer size if we run out of space
@@ -104,10 +107,16 @@ func handleConnection(conn net.Conn) {
 			fmt.Printf("Successful Connection with: %s", conn.RemoteAddr().String())
 			cxt.isConnected = true
 			cxt.clearBuffer(len(cxt.buffer))
+		} else {
+			wsf.Read(cxt.buffer)
+			if wsf.FrameReady {
+				message, _ := wsf.Decode(cxt.buffer)
+				fmt.Println(string(message))
+				wsf = frame.WebSocketFrame{}
+				cxt.clearBuffer(len(cxt.buffer))
+			}
 		}
-		fmt.Println(string(cxt.buffer))
 	}
-	conn.Close()
 }
 
 func main() {
