@@ -38,8 +38,9 @@ func (wsf *WebSocketFrame) parseHeader(buffer []byte) error {
 		// using unit tests, since I don't feel like trying to write
 		// 2^16 characters right now
 		for i := 0; i <= 8; i++ {
-			wsf.payloadLength = uint64(buffer[2+i] << uint(8*(7-i)))
+			wsf.payloadLength += uint64(buffer[2+i] << uint(8*(7-i)))
 		}
+		wsf.headerLength += 8
 	}
 	if wsf.mask {
 		wsf.maskingKey = buffer[wsf.headerLength : wsf.headerLength+4]
